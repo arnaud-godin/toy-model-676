@@ -1,8 +1,8 @@
 ###############################
-### HCV transmission model  ###
-### Arnaud Godin			###
-### Spring 2018        		###
-### McGill University  		###
+### HCV transmission model 	###
+### Arnaud Godin						###
+### Spring 2018							###
+### McGill University				###
 ###############################
 
 require(stats)
@@ -28,11 +28,11 @@ SIRSModel <- function(t, pop, parms){
 	
 
 	############## The ODE system with parameter list #####################
-	### beta = Probability of effective contact,						###
-	### alpha.A = Spont. clearance rate; multiplied by 2 (1/D)			###
-	### gamma = HCV mortality rate (assumed equal for C and F)			###	
-	### alpha.Tx = HCV Treatment efficacy								###									###
-	### There is a total of 8 parameters to estimate 					###
+	### beta = Probability of effective contact,												###
+	### alpha.A = Spont. clearance rate; multiplied by 2 (1/D)					###
+	### gamma = HCV mortality rate (assumed equal for C and F)					###	
+	### alpha.Tx = HCV Treatment efficacy																###
+	### There is a total of 8 parameters to estimate 										###
 	#######################################################################
 
 	with(as.list(parms),{
