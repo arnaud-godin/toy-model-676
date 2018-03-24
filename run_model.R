@@ -1,8 +1,8 @@
 ###############################
-### Run of the model 	    ###
-### Arnaud Godin			###
-### Spring 2018        		###
-### McGill University  		###
+### Run of the model
+### Arnaud Godin
+### Spring 2018
+### McGill University
 ###############################
 
 require(ggplot2)
@@ -15,7 +15,7 @@ source('SIRS_model.R')
 # ---- Run of the model ----
 
 RunModel <- function(beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
- dt=.01, plot = ''){
+ sigma = 0.024, dt=.01, plot = ''){
 	# --- Initialize the model parameters ---
 	# There are only acute infections at first
 
@@ -26,10 +26,12 @@ RunModel <- function(beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 	F0 <- 0	
 	S0 <- N-A0-C0 # The susceptibles are total population - acute
 
+	#	Sigma definition in the model
+
 	# The initial population and parameters
 	init.pop <- c('S' = S0, 'A' = A0, 'C' = C0, 'Tx' = Tx0, 'F' = F0)
 	params <- c(beta = beta, alpha.A = alpha.A,
-	 alpha.Tx = alpha.Tx, gamma = gamma)
+	 alpha.Tx = alpha.Tx, gamma = gamma, sigma = sigma)
 
 	# Time definition for the model
 	time.0 <- 2003
@@ -46,7 +48,7 @@ RunModel <- function(beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 	out$prev <- out$I / out$N
 
 	# Estimated prevalence in the years of the surveys 
-	out.prev <- subset(out$prev, out$time %in% c(2003:2013))
+	prev.estim <- subset(out$prev, out$time %in% c(2003:2013))
 
 	#Returning graphical representation
 	base.graph <- ggplot(data = out, aes(x = time)) +
@@ -70,9 +72,9 @@ RunModel <- function(beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 	if(plot == ''){
 		return(prev.estim)
 	} else if (plot == 'trajectory'){
-		return(list(prev.estim = out.prev, epid.trajectory))
+		return(list(prev.estim = prev.estim, epid.trajectory))
 	} else if (plot == 'prevalence'){
-		return(list(prev.estim = out.prev, epid.prevalence))
+		return(list(prev.estim = prev.estim, epid.prevalence))
 	} else {
 		return(print('Options are: "", "trajectory", "prevalence"'))
 	}
