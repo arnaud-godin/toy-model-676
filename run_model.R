@@ -48,33 +48,35 @@ RunModel <- function(beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 	out$prev <- out$I / out$N
 
 	# Estimated prevalence in the years of the surveys 
-	prev.estim <- subset(out$prev, out$time %in% c(2003:2013))
+	out.prev <- subset(out$prev, out$time %in% c(2003:2013))
+	prev.estim <- data.frame(c(2003:2013), out.prev)
 
 	#Returning graphical representation
 	base.graph <- ggplot(data = out, aes(x = time)) +
 	theme(panel.grid.major.x = element_blank(),
         title = element_text(family = 'Times', size = 12),
         axis.title.x = element_text(family = 'Times', size = 10),
-        axis.title.y = element_text(family = 'Times', size = 10)) +
+        axis.title.y = element_text(family = 'Times', size = 10),
+        legend.title = element_text(family = 'Times', size = 10)) +
 	theme_bw()
 
 	epid.trajectory <- base.graph +
 	geom_line(aes(y = S, color = 'Susceptibles')) +
 	geom_line(aes(y = I, color = 'Infectious')) +
 	geom_line(aes(y = Tx, color = 'On treatment')) +
-	labs(x = 'Time', y = 'People')
+	labs(x = 'Time (years)', y = 'Number of people')
 
 	epid.prevalence <- base.graph +
 	geom_line(aes(y = prev, color = 'Prevalence')) +
-	labs(x = 'Time', y = 'People')
+	labs(x = 'Time (years)', y = 'Prevalence')
 
 	#Plotting either the trajectory or the prevalence
 	if(plot == ''){
 		return(prev.estim)
 	} else if (plot == 'trajectory'){
-		return(list(prev.estim = prev.estim, epid.trajectory))
+		return(list(prev.estim = prev.estim, plot.traject = epid.trajectory))
 	} else if (plot == 'prevalence'){
-		return(list(prev.estim = prev.estim, epid.prevalence))
+		return(list(prev.estim = prev.estim, plot.prev = epid.prevalence))
 	} else {
 		return(print('Options are: "", "trajectory", "prevalence"'))
 	}
