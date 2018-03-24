@@ -26,6 +26,7 @@
 \usepackage{color}
 \usepackage{subcaption}
 \usepackage{enumerate}
+\usepackage{tikz}
 
 \geometry{letterpaper}
 \doublespacing
@@ -38,7 +39,53 @@
 \lstset{language=Python}
 
 \begin{document}
-\title{Preliminary model structure for HCV transmission among PWID}
+\title{Model structure for HCV transmission among people who inject drugs}
 \author{Arnaud Godin}
 \date{\today}
+\maketitle
+
+\noindent The toy model is composed of three major parts:
+\begin{itemize}
+	\item HCV transmission among people who inject drugs (PWID)
+	\item Incarceration dynamics in PWID
+	\item Injecting behaviours
+\end{itemize}
+ The force of infection is frequency dependent, since it will change with the prevalence of the virus in the population.
+
+\section{\large{Model of HCV transmission among PWID}}
+Graphical structure
+Description
+\begin{align*}
+	& \frac{dS(t)}{dt} = -\lambda(t) S(t) + \alpha_{Tx} Tx(t) + \alpha_{A} A(t) \\
+	& \frac{dA(t)}{dt} = \lambda(t) S(t) - \sigma_{A} A(t) - \alpha_{A} A(t) \\
+	& \frac{dC(t)}{dt} = \sigma_{A} A(t) - \sigma_{C} C(t) - \gamma C(t) \\
+	& \frac{dTx(t)}{dt} = \sigma_{C} C(t) - \sigma_{Tx} Tx(t) +
+	\omega F(t) - \alpha_{Tx} Tx(t)\\
+	& \frac{dF(t)}{dt} = \sigma_{Tx} Tx(t) - \omega F(t) - \gamma F(t) \\
+	& N(t) = S(t) + A(t) + C(t) + Tx(t) + F(t) 
+\end{align*}
+
+\section{\large{Model of incarceration dynamics among PWID}}
+Graphical structure
+Description
+\begin{align*}
+	& \frac{dP_{1}(t)}{dt} = -\eta_{1} P_{1}(t) \\
+	& \frac{dP_{2}(t)}{dt} = \eta_{1} P_{1}(t) - \eta_{2} P_{2}(t) + \eta_{4} P_{4}(t) \\
+	& \frac{dP_{3} (t)}{dt} = \eta_{2} P_{2}(t) - \eta_{3} P_{3}(t) \\
+	& \frac{dP_{4} (t)}{dt} = \eta_{3} P_{3}(t) - \eta_{4} P_{4}(t)
+\end{align*}
+
+\section{\large{Model of injecting behaviours}}
+Graphical structure
+Description
+
+
+\section{\large{The force of infection: $\boldsymbol{\lambda}(t)$}}
+Define the force of infection (see with Charlotte)
+
+\section{\large{Model parameters}}
+Table with the most important model parameters to be informed. Find where they will be informed from and propose a prior distribution.
+
+\section{\large{Model fit}}
+Describe the fitting procedure and present the results.
 \end{document}
