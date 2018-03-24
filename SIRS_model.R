@@ -1,1 +1,51 @@
-################################## HCV transmission model  ###### Arnaud Godin			###### Spring 2018        		###### McGill University  		##################################require(stats)source('force_of_infection.R', chdir = TRUE)# ---- Model of HCV transmission ----SIRSModel <- function(t, pop, parms){	# The compartments	S <- pop[1]		# Susceptible	A <- pop[2]		# Acute 	C <- pop[3]		# Chronic	Tx <- pop[4]	# On treatment	F <- pop[5]		# Failed treatment	N <- S + A + C + Tx + F 	#Population size	# The infectious, which imply the assumtion that people undergoing	# treatment are not infectious because their viral load is low 	I <- A + C + F 	#Definition of sigma in time (treatment coverage will vary with time)	sigma <- spline(c(0, 0.024, 0.06), n = 30, method = 'fmm')		############## The ODE system with parameter list #####################	### beta = Probability of effective contact,						###	### alpha.A = Spont. clearance rate; multiplied by 2 (1/D)			###	### gamma = HCV mortality rate (assumed equal for C and F)			###		### alpha.Tx = HCV Treatment efficacy								###									###	### There is a total of 8 parameters to estimate 					###	#######################################################################	with(as.list(parms),{		dS <- - FoI(beta, I, N) * S + alpha.A * 2 * A + (alpha.Tx) * 4 * Tx		dA <- FoI(beta, I, N) * S - (1 - alpha.A) * 2 * A - alpha.A * 2 * A		dC <- (1 - alpha.A) * 2 * A - sigma[t] * C - gamma * C	 		dTx <- sigma[t] * C - (1 - alpha.Tx) * 4 * Tx + sigma[t] * F -		 alpha.Tx * 4 * Tx  		dF <- (1 - alpha.Tx) * 4 * Tx - sigma[t] * F - gamma * F  	#Returning the results		result <- c(dS, dA, dC, dTx, dF)		list(result)	})}
+###############################
+### HCV transmission model  ###
+### Arnaud Godin			###
+### Spring 2018        		###
+### McGill University  		###
+###############################
+
+require(stats)
+source('force_of_infection.R', chdir = TRUE)
+
+# ---- Model of HCV transmission ----
+
+SIRSModel <- function(t, pop, parms){
+	# The compartments
+	S <- pop[1]		# Susceptible
+	A <- pop[2]		# Acute 
+	C <- pop[3]		# Chronic
+	Tx <- pop[4]	# On treatment
+	F <- pop[5]		# Failed treatment
+	N <- S + A + C + Tx + F 	#Population size
+
+	# The infectious, which imply the assumtion that people undergoing
+	# treatment are not infectious because their viral load is low 
+	I <- A + C + F 
+
+	#Definition of sigma in time (treatment coverage will vary with time)
+	sigma <- spline(c(0, 0.024, 0.06), n = 30, method = 'fmm')
+	
+
+	############## The ODE system with parameter list #####################
+	### beta = Probability of effective contact,						###
+	### alpha.A = Spont. clearance rate; multiplied by 2 (1/D)			###
+	### gamma = HCV mortality rate (assumed equal for C and F)			###	
+	### alpha.Tx = HCV Treatment efficacy								###									###
+	### There is a total of 8 parameters to estimate 					###
+	#######################################################################
+
+	with(as.list(parms),{
+		dS <- - FoI(beta, I, N) * S + alpha.A * 2 * A + (alpha.Tx) * 4 * Tx
+		dA <- FoI(beta, I, N) * S - (1 - alpha.A) * 2 * A - alpha.A * 2 * A
+		dC <- (1 - alpha.A) * 2 * A - sigma[t] * C - gamma * C	 
+		dTx <- sigma[t] * C - (1 - alpha.Tx) * 4 * Tx + sigma[t] * F -
+		 alpha.Tx * 4 * Tx  
+		dF <- (1 - alpha.Tx) * 4 * Tx - sigma[t] * F - gamma * F  
+	#Returning the results
+		result <- c(dS, dA, dC, dTx, dF)
+		list(result)
+	})
+
+}
+
