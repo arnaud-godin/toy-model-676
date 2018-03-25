@@ -32,7 +32,7 @@ SIRSModel <- function(t, pop, parms){
 	### There is a total of 8 parameters to estimate
 	#######################################################################
 
-	with(as.list(parms),{
+	with(as.list(parms), {
 		dS <- - FoI(beta, I, N) * S + alpha.A * 2 * A + (alpha.Tx) * 4 * Tx
 		dA <- FoI(beta, I, N) * S - (1 - alpha.A) * 2 * A - alpha.A * 2 * A
 		dC <- (1 - alpha.A) * 2 * A - sigma * C - gamma * C	 
