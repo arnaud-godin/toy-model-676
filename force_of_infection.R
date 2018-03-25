@@ -5,7 +5,7 @@
 ### McGill University  
 ##########################
 
-FoI <- function(beta, I, N){
+FoI <- function(beta, I, N) {
 	lambda <- beta * (I/N)
 	return(lambda)
 }
