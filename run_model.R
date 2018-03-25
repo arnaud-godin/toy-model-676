@@ -12,10 +12,30 @@ source('SIRS_model.R')
 # The run of the model is a function by itself to then be used in the
 # calibration process
 
+# ---- Processing survey data ----
+
+# Preparing the different data points
+year <- c(2003:2013)
+surv.prevalence <- c(.643, .699, .707, .703, .735, .750, .759, .753, .707, 
+	.696, .720)
+surv.N <- c(389, 581, 461, 566, 532, 492, 464, 489, 478, 461, 486)
+surv.I <- round(surv.prevalence * surv.N)
+surv.S <- surv.N - surv.I
+
+# The data frame
+surv.track <- data.frame(year = year, N = surv.N, I = surv.I, S = surv.S,
+ prevalence = surv.prevalence)
+
+#The confidence interval for prevalence (binomial)
+surv.track$prev.LCI <- sapply(surv.track, function(x,y) binom.test(x = surv.track$I, y = surv.tra))
+	surv.track$prev.UCI[i] <- binom.test(surv.track$I[i],
+	 surv.track$N[i])$confint[2]
+}
+
 # ---- Run of the model ----
 
 RunModel <- function(beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
- sigma = 0.024, dt=.01, plot = ''){
+ sigma = 0.024, dt=.01, data=surv.track, plot = ''){
 	# --- Initialize the model parameters ---
 	# There are only acute infections at first
 
@@ -39,6 +59,7 @@ RunModel <- function(beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 	vec.time <- seq(0, time.t - time.0, by = dt)
 
 	# --- Run the model ---
+
 	out <- as.data.frame(ode(init.pop, vec.time, SIRSModel, params))
 
 	# Set time to a reasonable scale
