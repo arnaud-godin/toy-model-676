@@ -8,6 +8,7 @@
 require(ggplot2)
 require(deSolve)
 source('SIRS_model.R')
+source('likelihood_functions.R')
 
 # The run of the model is a function by itself to then be used in the
 # calibration process
@@ -34,8 +35,8 @@ surv.track$prev.UCI <- mapply(UCI, surv.track$surv.I, surv.track$surv.N)
 
 # ---- Run of the model ----
 
-RunModel <- function(beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
- 										 sigma = 0.024, dt=.01, data=surv.track, plot = '') {
+RunModel <- function (beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
+ 											sigma = 0.024, dt=.01, data=surv.track, plot = '') {
 	# --- Initialize the model parameters ---
 	# There are only acute infections at first
 
@@ -72,41 +73,54 @@ RunModel <- function(beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 	out.prev <- subset(out$prev, out$year %in% c(2003:2013))
 	prev.estim <- data.frame(year = c(2003:2013), model.prev = out.prev)
 
+	# --- Likelihood function ---
+
+	ll <- sum(binom_ll(N = surv.track$surv.N, Obs = surv.track$surv.prev,
+								 Mod = out.prev))
+
 	# --- Returning the different values ---
 
 	# Returning graphical representation
 	base.graph <- ggplot(data = out, aes(x = year)) +
+		theme_bw() +
 		theme(panel.grid.major.x = element_blank(),
 					title = element_text(family = 'Times', size = 12),
 					axis.title.x = element_text(family = 'Times', size = 10),
 					axis.title.y = element_text(family = 'Times', size = 10),
-					legend.title = element_text(family = 'Times', size = 10)) +
-		theme_bw()
+					legend.title = element_text(family = 'Times', size = 10),
+					legend.text = element_text(family = 'Times', size = 8))
 
 	# For the trajectory
 	epid.trajectory <- base.graph +
 		geom_line(aes(y = S, color = 'Susceptibles')) +
 		geom_line(aes(y = I, color = 'Infectious')) +
 		geom_line(aes(y = Tx, color = 'On treatment')) +
-		labs(x = 'Time (years)', y = 'Number of people')
+		labs(x = 'Time (years)', y = 'Number of people') 
 
 	epid.prevalence <- base.graph +
 		geom_line(aes(y = prev, color = 'Model Prevalence')) +
 		geom_point(data = surv.track,
 							 aes(y = surv.prev,
 									 color = 'Survey prevalence')) +
-		geom_errorbar(data = surv.track, aes(ymin = prev.LCI, ymax = prev.UCI)) +
-		labs(x = 'Time (years)', y = 'Prevalence')
+		geom_errorbar(data = surv.track,
+								  aes(ymin = prev.LCI, ymax = prev.UCI),
+								  	  color = '#75DADA',
+								  	  alpha = .6,
+								  	  width = 0.4) +
+		labs(x = 'Time (years)', y = 'Prevalence') +
+		expand_limits(y = 0)
 
 	#Plotting either the trajectory or the prevalence
 	if (plot == '') {
-		return(prev.estim)
+		return(list(prev.estim = prev.estim, LL = ll))
 	} else if (plot == 'trajectory') {
-		return(list(prev.estim = prev.estim, model.trajectory = epid.trajectory))
+		return(list(prev.estim = prev.estim, model.trajectory = epid.trajectory,
+								LL = ll))
 	} else if (plot == 'prevalence') {
-		return(list(prev.estime = prev.estim, model.prevalence = epid.prevalence))
+		return(list(prev.estim = prev.estim, model.prevalence = epid.prevalence,
+								LL = ll))
 	} else {
-		return(print('Options are: "", "trajectory", "prevalence"'))
+		return(print("Options are:'', 'trajectory', 'prevalence'"))
 	}
 }
 
