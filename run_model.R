@@ -24,7 +24,7 @@ surv.S <- surv.N - surv.I
 
 # The data frame
 surv.track <- data.frame(year = year, surv.N = surv.N, surv.I = surv.I,
- 												 surv.S = surv.S, surv.prev = surv.prev)
+ 						 surv.S = surv.S, surv.prev = surv.prev)
 
 #The confidence interval for prevalence (binomial)
 LCI <- function (x,n) round(binom.test(x,n)$conf.int[1], digits = 3)
@@ -112,7 +112,7 @@ RunModel <- function (beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 
 	#Plotting either the trajectory or the prevalence
 	if (plot == '') {
-		return(list(prev.estim = prev.estim, LL = ll))
+		return(list(prev.estim = prev.estim, out = out, LL = ll))
 	} else if (plot == 'trajectory') {
 		return(list(prev.estim = prev.estim, model.trajectory = epid.trajectory,
 								LL = ll))
