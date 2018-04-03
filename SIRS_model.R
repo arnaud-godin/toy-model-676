@@ -41,6 +41,12 @@ SISModel <- function (t, pop, parms) {
 
 	# Infectious in the high risk population
 	IHigh <- AHigh + CHigh + FHigh
+
+	# Total population size
+	N <- NLow + NHigh
+
+	# The total infected
+	I <- ILow + IHigh
 	
 	# --- Sigma parameter of treatment coverage ---
 
@@ -67,17 +73,38 @@ SISModel <- function (t, pop, parms) {
 
 		FOI <- FoI(beta, ILow, NLow, IHigh, NHigh)
 
-		# The differential equation system for the low risk
-		dS <- - FOI$low * SLow + alpha.A * 2 * ALow + (alpha.Tx) * 4 * TxLow -
-      r * SLow + r * NLow
-		dA <- FOI$low * SLow - (1 - alpha.A) * 2 * ALow - alpha.A * 2 * ALow -
-		 r * ALow
-		dC <- (1 - alpha.A) * 2 * ALow - sigma * CLow - gamma * CLow	- r * CLow 
-		dTx <- sigma * CLow - (1 - alpha.Tx) * 4 * TxLow + sigma * FLow -
-		 alpha.Tx * 4 * TxLow  
-		dF <- (1 - alpha.Tx) * 4 * TxLow - sigma * FLow - gamma * FLow - r * FLow
+		# -- Differential equations system for the low risk --
 
-		# The differential equation system for the high risk
+		dSLow <- - FOI$low * SLow + alpha.A * 2 * ALow + alpha.Tx * 4 * TxLow -
+     r * SLow + r * N * (NLow/N)
+  
+		dALow <- FOI$low * SLow - (1 - alpha.A) * 2 * ALow - r * ALow -
+		 alpha.A * 2 * ALow
+ 
+		dCLow <- (1 - alpha.A) * 2 * ALow - sigma * CLow - gamma * CLow	- r * CLow
+
+		dTxLow <- sigma * CLow - (1 - alpha.Tx) * 4 * TxLow + sigma * FLow -
+		 alpha.Tx * 4 * TxLow
+
+		dFLow <- (1 - alpha.Tx) * 4 * TxLow - sigma * FLow - gamma * FLow -
+		 r * FLow
+
+		# -- Differential equations system for the high risk --
+
+		dSHigh <- - FOI$high * SHigh + alpha.A * 2 * AHigh + alpha.Tx * 4 * TxHigh -
+		 r * SHigh + r * N * (1 - (NLow/N))
+
+		dAHigh <- FOI$high * SHigh - (1 - alpha.A) * 2 * AHigh - r * AHigh -
+		 alpha.A * 2 * AHigh
+
+		dCHigh <- (1 - alpha.A) * 2 * AHigh - sigma * CHigh - gamma * CHigh -
+		 r * CHigh
+
+		dTxHigh <- sigma * CHigh - (1 - alpha.Tx) * 4 * TxHigh + sigma * FHigh -
+		 alpha.Tx * 4 * TxHigh
+
+		dFHigh <- (1 - alpha.Tx) * 4 * TxHigh - sigma * FHigh - gamma * FHigh -
+		 r * FHigh
 
 		#Returning the results
 		result <- c(dS, dA, dC, dTx, dF)
