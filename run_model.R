@@ -26,7 +26,7 @@ surv.S <- surv.N - surv.I
 surv.track <- data.frame(year = year, surv.N = surv.N, surv.I = surv.I,
  						 surv.S = surv.S, surv.prev = surv.prev)
 
-#The confidence interval for prevalence (binomial)
+# The confidence interval for prevalence (binomial)
 LCI <- function (x,n) round(binom.test(x,n)$conf.int[1], digits = 3)
 UCI <- function (x,n) round(binom.test(x,n)$conf.int[2], digits = 3)
 
@@ -35,8 +35,9 @@ surv.track$prev.UCI <- mapply(UCI, surv.track$surv.I, surv.track$surv.N)
 
 # ---- Run of the model ----
 
-RunModel <- function (beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
- 											sigma = 0.024, dt=.01, data=surv.track, plot = '') {
+RunModel <- function (beta=0.875, r=1/15, alpha.A=0.15, alpha.Tx=.9,
+											gamma=.0373, dt=.5, data=surv.track,
+											plot = '') {
 	# --- Initialize the model parameters ---
 	# There are only acute infections at first
 
@@ -47,12 +48,10 @@ RunModel <- function (beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 	F0 <- 0	
 	S0 <- N0 - A0 - C0 # The susceptibles are total population - acute
 
-	#	Sigma definition in the model
-
 	# The initial population and parameters
 	init.pop <- c(S = S0, A = A0, C = C0, Tx = Tx0, F = F0)
-	params <- c(beta = beta, alpha.A = alpha.A,
-	 						alpha.Tx = alpha.Tx, gamma = gamma, sigma = sigma)
+	params <- list(beta = beta, r = r, alpha.A = alpha.A, 
+	 							 alpha.Tx = alpha.Tx, gamma = gamma)
 
 	# Time definition for the model
 	time.0 <- 2003
@@ -75,8 +74,8 @@ RunModel <- function (beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 
 	# --- Likelihood function ---
 
-	ll <- sum(binom_ll(N = surv.track$surv.N, Obs = surv.track$surv.prev,
-								 Mod = out.prev))
+	ll <- sum(binom_ll(N = surv.track$surv.N, Obs = surv.track$surv.prev, 
+                     Mod = out.prev))
 
 	# --- Returning the different values ---
 
@@ -95,7 +94,7 @@ RunModel <- function (beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 		geom_line(aes(y = S, color = 'Susceptibles')) +
 		geom_line(aes(y = I, color = 'Infectious')) +
 		geom_line(aes(y = Tx, color = 'On treatment')) +
-		labs(x = 'Time (years)', y = 'Number of people') 
+		labs(x = 'Time (years)', y = 'Number of people')
 
 	epid.prevalence <- base.graph +
 		geom_line(aes(y = prev, color = 'Model Prevalence')) +
@@ -112,7 +111,7 @@ RunModel <- function (beta=2, alpha.A=0.15, alpha.Tx=.9, gamma=0.75/100,
 
 	#Plotting either the trajectory or the prevalence
 	if (plot == '') {
-		return(list(prev.estim = prev.estim, out = out, LL = ll))
+		return(list(prev.estim = prev.estim, LL = ll))
 	} else if (plot == 'trajectory') {
 		return(list(prev.estim = prev.estim, model.trajectory = epid.trajectory,
 								LL = ll))
