@@ -8,6 +8,9 @@
 require(stats)
 source('force_of_infection.R', chdir = TRUE)
 
+# ---- MODIFICATION ----
+a <- rnorm(1,1,1)
+
 # ---- Model of HCV transmission ----
 
 SISModel <- function (t, pop, parms) {
